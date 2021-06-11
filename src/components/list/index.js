@@ -1,7 +1,5 @@
 import React from "react";
 import api from "../../services/searchapi";
-import Container from "../../components/container";
-import { Pagination } from "./styles";
 import { FaCodeBranch, FaEye } from 'react-icons/fa';
 import { MdStar } from 'react-icons/md';
 
@@ -10,73 +8,73 @@ export class ListComponent extends React.Component {
         repositories: [],
         searchCounter: {},
         page: null,
-        nextPage: false,
         newRepo: '',
     };
 
     handleInputChange = e => {
-        this.setState({ newRepo: e.target.value })
+        let value = e.target.value;
+        if (value === "") {
+            this.setState({
+                repositories: [],
+                searchCounter: {},
+                page: null
+            })
+        }
+        this.setState({ newRepo: value })
     };
 
     handleSubmit = async e => {
         e.preventDefault();
-        console.log("handleSubmit: ", e);
-        const { newRepo, page } = this.state;
+        const { newRepo } = this.state;
+        localStorage.setItem('newRepo', newRepo);
+        if (!newRepo || newRepo === "")
+            alert("Enter valid searchTerm");
+        else
+            this.getSearchData(newRepo, 1);
+    };
 
-        localStorage.setItem('newRepo', e);
-
-        const [repositories] = await Promise.all([
-            api.get(`/search/repositories?q=${e}`, {
+    async getSearchData(term, page) {
+        await Promise.all([
+            api.get(`/search/repositories?q=${term}`, {
                 params: {
                     per_page: 10,
                     page,
                 },
+            }).then(searchData => {
+                this.setSearchData(searchData, page);
+            }).catch(error => {
+                alert(error);
+                return error;
             }),
         ]);
+    }
 
+    setSearchData(searchData, page) {
+        let tempList = new Array();
+        if (page > 1) {
+            tempList = this.state.repositories;
+            tempList.push.apply(tempList, searchData.data.items);
+        } else {
+            tempList = searchData;
+        }
         this.setState({
-            repositories: repositories.data.items,
-            // newRepo: '',
-            searchCounter: repositories.data,
-            // page: 1,
-            nextPage: Boolean(
-                repositories.headers.link && repositories.headers.link.includes('next')
-            ),
+            repositories: searchData.data.items,
+            searchCounter: searchData.data,
+            page,
         });
-    };
+    }
+
 
     handlePageChange = async page => {
         const newRepo = localStorage.getItem('newRepo');
-        const repositories = await api.get(`/search/repositories?q=${newRepo}`, {
-            params: {
-                per_page: 10,
-                page,
-            },
-        });
-
-        let tempList = new Array();
-        console.log("Before:", this.state.repositories);
-        if (this.state.repositories && this.state.repositories.length > 0) {
-            tempList = this.state.repositories;
-            tempList.push.apply(tempList, repositories.data.items);
-        }
-        console.log("After:", tempList + ">>>>: ", tempList.length);
-
-        this.setState({
-            repositories: tempList,
-            searchCounter: repositories.data,
-            page,
-            nextPage: Boolean(
-                repositories.headers.link && repositories.headers.link.includes('next')
-            ),
-        });
+        this.getSearchData(newRepo, page);
     };
 
     render() {
-        const { newRepo, repositories, searchCounter, page, nextPage } = this.state;
+        const { newRepo, repositories, searchCounter, page } = this.state;
 
         return (
-            <Container>
+            <div className="background_color">
                 <form onSubmit={this.handleSubmit}>
                     <input
                         type="text"
@@ -87,8 +85,10 @@ export class ListComponent extends React.Component {
                 </form>
 
                 <React.Fragment>
-                    <h2>{searchCounter.total_count} repository results</h2>
-                    {repositories.map(repository => (
+                    {searchCounter?.total_count && searchCounter.total_count > 0 &&
+                        <h2 className="header_count">{searchCounter?.total_count} repository results</h2>
+                    }
+                    {repositories?.map(repository => (
                         <React.Fragment key={String(repository.id)}>
                             <div className="project_div">
                                 <div className="profile_icon">
@@ -125,28 +125,16 @@ export class ListComponent extends React.Component {
                         </React.Fragment>
                     ))}
                 </React.Fragment>
-
-                <Pagination>
-                    {/* {page > 1 && (
-                        <button
-                            type="button"
-                            className="previous"
-                            onClick={() => this.handlePageChange(page - 1)}
-                        >
-                            Previous
-                        </button>
-                    )} */}
-                    {nextPage && (
-                        <button
-                            type="button"
-                            className="show_more_bt"
-                            onClick={() => this.handlePageChange(page + 1)}
-                        >
-                            Show More
-                        </button>
-                    )}
-                </Pagination>
-            </Container>
+                {page >= 1 && (
+                    <button
+                        type="button"
+                        className="show_more_bt"
+                        onClick={() => this.handlePageChange(page + 1)}
+                    >
+                        Show More
+                    </button>
+                )}
+            </div>
         );
     }
 }
