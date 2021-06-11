@@ -5,11 +5,10 @@ import Routes from './routes';
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <p>{process.env.REACT_APP_TITLE}</p>
+     <div className="container">
+        <h3 className="text-center">{process.env.REACT_APP_TITLE}</h3>
         <Routes />
-
-      </header>
+     </div>
     </div>
   );
 }

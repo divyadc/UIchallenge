@@ -74,19 +74,22 @@ export class ListComponent extends React.Component {
         const { newRepo, repositories, searchCounter, page } = this.state;
 
         return (
-            <div className="background_color">
+            <div>
                 <form onSubmit={this.handleSubmit}>
-                    <input
+                   <div>
+                   <input
                         type="text"
                         value={newRepo}
                         onChange={this.handleInputChange}
                         placeholder="Search or jump to..."
+                        className="form-control"
                     />
+                   </div>
                 </form>
 
                 <React.Fragment>
                     {searchCounter?.total_count && searchCounter.total_count > 0 &&
-                        <h2 className="header_count">{searchCounter?.total_count} repository results</h2>
+                        <h2 className="header_count text-center">{searchCounter?.total_count} repository results</h2>
                     }
                     {repositories?.map(repository => (
                         <React.Fragment key={String(repository.id)}>
