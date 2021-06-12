@@ -1,5 +1,5 @@
 import React from 'react';
-import { ListComponent } from '../../components/list';
+import ListComponent from '../../components/list';
 
 export default class Search extends React.Component {
     render() {

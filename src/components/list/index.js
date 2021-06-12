@@ -3,7 +3,8 @@ import api from "../../services/searchapi";
 import { FaCodeBranch, FaEye } from 'react-icons/fa';
 import { MdStar } from 'react-icons/md';
 
-export class ListComponent extends React.Component {
+export default class ListComponent extends React.Component {
+
     state = {
         repositories: [],
         searchCounter: {},
@@ -29,8 +30,9 @@ export class ListComponent extends React.Component {
         localStorage.setItem('newRepo', newRepo);
         if (!newRepo || newRepo === "")
             alert("Enter valid searchTerm");
-        else
+        else {
             this.getSearchData(newRepo, 1);
+        }
     };
 
     async getSearchData(term, page) {
@@ -42,6 +44,7 @@ export class ListComponent extends React.Component {
                 },
             }).then(searchData => {
                 this.setSearchData(searchData, page);
+                return searchData;
             }).catch(error => {
                 alert(error);
                 return error;
@@ -50,7 +53,7 @@ export class ListComponent extends React.Component {
     }
 
     setSearchData(searchData, page) {
-        let tempList = new Array();
+        let tempList = [];
         if (page > 1) {
             tempList = this.state.repositories;
             tempList.push.apply(tempList, searchData.data.items);
@@ -64,7 +67,6 @@ export class ListComponent extends React.Component {
         });
     }
 
-
     handlePageChange = async page => {
         const newRepo = localStorage.getItem('newRepo');
         this.getSearchData(newRepo, page);
@@ -76,15 +78,15 @@ export class ListComponent extends React.Component {
         return (
             <div>
                 <form onSubmit={this.handleSubmit}>
-                   <div>
-                   <input
-                        type="text"
-                        value={newRepo}
-                        onChange={this.handleInputChange}
-                        placeholder="Search or jump to..."
-                        className="form-control"
-                    />
-                   </div>
+                    <div>
+                        <input
+                            type="text"
+                            value={newRepo}
+                            onChange={this.handleInputChange}
+                            placeholder="Search or jump to..."
+                            className="form-control"
+                        />
+                    </div>
                 </form>
 
                 <React.Fragment>
@@ -95,7 +97,7 @@ export class ListComponent extends React.Component {
                         <React.Fragment key={String(repository.id)}>
                             <div className="project_div">
                                 <div className="profile_icon">
-                                    <img src={repository?.owner?.avatar_url}></img>
+                                    <img src={repository?.owner?.avatar_url} alt=""></img>
                                 </div>
                                 <div className="project_info">
                                     <div className="project_title">
@@ -130,6 +132,7 @@ export class ListComponent extends React.Component {
                 </React.Fragment>
                 {page >= 1 && (
                     <button
+                        id="more_button"
                         type="button"
                         className="show_more_bt"
                         onClick={() => this.handlePageChange(page + 1)}

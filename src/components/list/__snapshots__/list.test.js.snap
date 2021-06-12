@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ListComponent Should render correctly in "debug" mode 1`] = `
+<div>
+  <form
+    onSubmit={[Function]}
+  >
+    <div>
+      <input
+        className="form-control"
+        onChange={[Function]}
+        placeholder="Search or jump to..."
+        type="text"
+        value=""
+      />
+    </div>
+  </form>
+</div>
+`;
+
+exports[`ListComponent should render correctly in "debug" mode 1`] = `
+<div>
+  <form
+    onSubmit={[Function]}
+  >
+    <div>
+      <input
+        className="form-control"
+        onChange={[Function]}
+        placeholder="Search or jump to..."
+        type="text"
+        value=""
+      />
+    </div>
+  </form>
+</div>
+`;
